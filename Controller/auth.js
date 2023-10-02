@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt');
 const Users = require('../models/users');
 const jwt = require('jsonwebtoken');
-
+const dotenv = require('dotenv');
+dotenv.config();
 const loginUser = async (userId) => {
     // Update the user's online status to 'online' in the database
     await Users.findByIdAndUpdate(userId, { onlineStatus: 'online' });
@@ -26,7 +27,7 @@ const login = async (req, res) => {
                         userId: user.id,
                         email: user.email
                     }
-                    const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'THIS_IS_SECRET_KEY';
+                    const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
                     jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: 84600 }, async (err, token) => {
                         await Users.updateOne({ _id: user._id }, {
                             $set: { token }

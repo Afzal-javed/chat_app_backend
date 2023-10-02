@@ -3,7 +3,7 @@ const Users = require('./models/users');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const dotenv = require('dotenv');
 const register = require('./Controller/registerController.js');
 const login = require('./Controller/auth');
 const update = require('./Controller/update');
@@ -18,13 +18,6 @@ const moment = require('moment-timezone');
 require('./DB/connection');
 const cloudinary = require('cloudinary').v2;
 
-cloudinary.config({
-    cloud_name: 'didaqbzlw',
-    api_key: '546235265583292',
-    api_secret: '9j7T55ryefqcnjsSaaCWt7WzWhQ'
-});
-const port = 8000;
-
 //socket code
 const io = require('socket.io')(8002, {
     cors: {
@@ -36,11 +29,10 @@ let users = [];
 
 io.on('connection', socket => {
     console.log("user connected");
-
     socket.on('addUser', userId => {
         const isUserExist = users.find(user => user.userId === userId);
         if (!isUserExist) {
-            const user = { userId, socketId: socket.id }; // Assign socket.id to user.socketId
+            const user = { userId, socketId: socket.id };
             users.push(user);
             io.emit('getUsers', users);
         }
@@ -72,27 +64,10 @@ io.on('connection', socket => {
             });
 
         }
-        // if (receiver) {
-        //     io.to(receiver.socketId).to(sender.socketId).emit('getMessage', {
-        //         senderId,
-        //         message,
-        //         conversationId,
-        //         receiverId,
-        //         user: { id: user._id, fullName: user.fullName, email: user.email }
-        //     });
-        // } else {
-        //     io.to(sender.socketId).emit('getMessage', {
-        //         senderId,
-        //         message,
-        //         conversationId,
-        //         receiverId,
-        //         user: { id: user._id, fullName: user.fullName, email: user.email }
-        //     });
-        // }
+
     });
 
     socket.on('disconnect', () => {
-        // Remove the disconnected user from the users array
         const disconnectedUser = users.find(user => user.socketId === socket.id);
         if (disconnectedUser) {
             users = users.filter(user => user.socketId !== socket.id);
@@ -102,6 +77,12 @@ io.on('connection', socket => {
 });
 
 //config
+dotenv.config();
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET_KEY
+});
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -150,6 +131,6 @@ app.use('/api', conversationPostRouter)
 app.use('/api/conversations', conversationGetRouter);
 app.use('/api/message', messagesGet);
 
-app.listen(port, () => {
-    console.log(`serevr run on ${port}`);
+app.listen(process.env.PORT || 8080, () => {
+    console.log(`serevr run on ${process.env.PORT}`);
 })
