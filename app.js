@@ -19,9 +19,9 @@ require('./DB/connection');
 const cloudinary = require('cloudinary').v2;
 
 //socket code
-const io = require('socket.io')(8002, {
+const io = require('socket.io')(8001, {
     cors: {
-        origin: process.env.CLIENT_URL || 'http://localhost:3000',
+        origin: process.env.CLIENT_URL,
     }
 });
 
