@@ -18,8 +18,10 @@ const moment = require('moment-timezone');
 require('./DB/connection');
 const cloudinary = require('cloudinary').v2;
 
+const app = express();
+const server = require('http').createServer(app);
 //socket code
-const io = require('socket.io')(8001, {
+const io = require('socket.io')(server, {
     cors: {
         origin: process.env.CLIENT_URL,
     }
@@ -83,7 +85,7 @@ cloudinary.config({
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET_KEY
 });
-const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
@@ -131,6 +133,6 @@ app.use('/api', conversationPostRouter)
 app.use('/api/conversations', conversationGetRouter);
 app.use('/api/message', messagesGet);
 
-app.listen(process.env.PORT || 8080, () => {
+server.listen(process.env.PORT || 8080, () => {
     console.log(`serevr run on ${process.env.PORT}`);
 })
